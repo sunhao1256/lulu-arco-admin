@@ -23,3 +23,8 @@ export const regexUrl = new RegExp(
 );
 
 export default null;
+
+export * from './service';
+export * from './storage';
+export * from './router';
+export * from './common';

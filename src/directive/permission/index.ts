@@ -1,17 +1,15 @@
 import { DirectiveBinding } from 'vue';
-import { useUserStore } from '@/store';
+import { usePermission } from '@/composables';
 
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   const { value } = binding;
-  const userStore = useUserStore();
-  const { role } = userStore;
-
+  const { hasPermission } = usePermission();
   if (Array.isArray(value)) {
     if (value.length > 0) {
-      const permissionValues = value;
+      const permissionValues = value as Auth.RoleType | Auth.RoleType[];
 
-      const hasPermission = permissionValues.includes(role);
-      if (!hasPermission && el.parentNode) {
+      const has = hasPermission(permissionValues);
+      if (!has && el.parentNode) {
         el.parentNode.removeChild(el);
       }
     }

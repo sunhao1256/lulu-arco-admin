@@ -1,55 +1,69 @@
-import type { Router, RouteRecordNormalized } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
+import { routeName } from '@/router';
+import { useAuthStore } from '@/store';
+import { exeStrategyActions, localStg } from '@/utils';
+import { createDynamicRouteGuard } from './dynamic';
 
-import usePermission from '@/hooks/permission';
-import { useUserStore, useAppStore } from '@/store';
-import { appRoutes } from '../routes';
-import { WHITE_LIST, NOT_FOUND } from '../constants';
+export async function createPermissionGuard(
+  to: RouteLocationNormalized,
+  from: RouteLocationNormalized,
+  next: NavigationGuardNext
+) {
+  const permission = await createDynamicRouteGuard(to, from, next);
+  if (!permission) return;
 
-export default function setupPermissionGuard(router: Router) {
-  router.beforeEach(async (to, from, next) => {
-    const appStore = useAppStore();
-    const userStore = useUserStore();
-    const Permission = usePermission();
-    const permissionsAllow = Permission.accessRouter(to);
-    if (appStore.menuFromServer) {
-      // 针对来自服务端的菜单配置进行处理
-      // Handle routing configuration from the server
+  if (to.meta.href) {
+    window.open(to.meta.href);
+    next({ path: from.fullPath, replace: true, query: from.query });
+    return;
+  }
 
-      // 根据需要自行完善来源于服务端的菜单配置的permission逻辑
-      // Refine the permission logic from the server's menu configuration as needed
-      if (
-        !appStore.appAsyncMenus.length &&
-        !WHITE_LIST.find((el) => el.name === to.name)
-      ) {
-        await appStore.fetchServerMenuConfig();
-      }
-      const serverMenuConfig = [...appStore.appAsyncMenus, ...WHITE_LIST];
+  const auth = useAuthStore();
+  const isLogin = Boolean(localStg.get('token'));
+  const permissions = to.meta.permissions || [];
+  const needLogin =
+    Boolean(to.meta?.requiresAuth) || Boolean(permissions.length);
+  const hasPermission =
+    !permissions.length || permissions.includes(auth.userInfo.userRole);
 
-      let exist = false;
-      while (serverMenuConfig.length && !exist) {
-        const element = serverMenuConfig.shift();
-        if (element?.name === to.name) exist = true;
-
-        if (element?.children) {
-          serverMenuConfig.push(
-            ...(element.children as unknown as RouteRecordNormalized[])
-          );
-        }
-      }
-      if (exist && permissionsAllow) {
+  const actions: Common.StrategyAction[] = [
+    // 已登录状态跳转登录页，跳转至首页
+    [
+      isLogin && to.name === routeName('login'),
+      () => {
+        next({ name: routeName('root') });
+      },
+    ],
+    // 不需要登录权限的页面直接通行
+    [
+      !needLogin,
+      () => {
         next();
-      } else next(NOT_FOUND);
-    } else {
-      // eslint-disable-next-line no-lonely-if
-      if (permissionsAllow) next();
-      else {
-        const destination =
-          Permission.findFirstPermissionRoute(appRoutes, userStore.role) ||
-          NOT_FOUND;
-        next(destination);
-      }
-    }
-    NProgress.done();
-  });
+      },
+    ],
+    // 未登录状态进入需要登录权限的页面
+    [
+      !isLogin && needLogin,
+      () => {
+        const redirect = to.fullPath;
+        next({ name: routeName('login'), query: { redirect } });
+      },
+    ],
+    // 登录状态进入需要登录权限的页面，有权限直接通行
+    [
+      isLogin && needLogin && hasPermission,
+      () => {
+        next();
+      },
+    ],
+    [
+      // 登录状态进入需要登录权限的页面，无权限，重定向到无权限页面
+      isLogin && needLogin && !hasPermission,
+      () => {
+        next({ name: routeName('403') });
+      },
+    ],
+  ];
+
+  exeStrategyActions(actions);
 }

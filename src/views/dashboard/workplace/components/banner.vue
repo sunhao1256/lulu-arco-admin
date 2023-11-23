@@ -11,12 +11,12 @@
 
 <script lang="ts" setup>
   import { computed } from 'vue';
-  import { useUserStore } from '@/store';
+  import { useAuthStore } from '@/store';
 
-  const userStore = useUserStore();
+  const authStore = useAuthStore();
   const userInfo = computed(() => {
     return {
-      name: userStore.name,
+      name: authStore.userInfo.userName,
     };
   });
 </script>

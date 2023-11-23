@@ -1,9 +1,12 @@
 import { createPinia } from 'pinia';
-import useAppStore from './modules/app';
-import useUserStore from './modules/user';
-import useTabBarStore from './modules/tab-bar';
+import { App } from 'vue';
 
-const pinia = createPinia();
+export function setupStore(app: App) {
+  const store = createPinia();
+  app.use(store);
+}
 
-export { useAppStore, useUserStore, useTabBarStore };
-export default pinia;
+export * from './theme';
+export * from './route';
+export * from './auth';
+export * from './subscribe';

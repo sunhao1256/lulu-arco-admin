@@ -1,25 +1,67 @@
-import type { RouteRecordNormalized } from 'vue-router';
+import { getLoginModuleRegExp } from '@/utils';
 
-const modules = import.meta.glob('./modules/*.ts', { eager: true });
-const externalModules = import.meta.glob('./externalModules/*.ts', {
-  eager: true,
-});
+export const ROOT_ROUTE: AuthRoute.Route = {
+  name: 'root',
+  path: '/',
+  redirect: import.meta.env.VITE_ROUTE_HOME_PATH,
+  meta: {
+    title: 'Root',
+  },
+};
 
-function formatModules(_modules: any, result: RouteRecordNormalized[]) {
-  Object.keys(_modules).forEach((key) => {
-    const defaultModule = _modules[key].default;
-    if (!defaultModule) return;
-    const moduleList = Array.isArray(defaultModule)
-      ? [...defaultModule]
-      : [defaultModule];
-    result.push(...moduleList);
-  });
-  return result;
-}
-
-export const appRoutes: RouteRecordNormalized[] = formatModules(modules, []);
-
-export const appExternalRoutes: RouteRecordNormalized[] = formatModules(
-  externalModules,
-  []
-);
+export const constantRoutes: AuthRoute.Route[] = [
+  ROOT_ROUTE,
+  {
+    name: 'login',
+    path: '/login',
+    component: 'self',
+    props: (route) => {
+      const moduleType =
+        (route.params.module as EnumType.LoginModuleKey) || 'sign-in';
+      return {
+        module: moduleType,
+      };
+    },
+    meta: {
+      title: 'login.title',
+      dynamicPath: `/login/:module(${getLoginModuleRegExp()})?`,
+      singleLayout: 'auth',
+    },
+  },
+  {
+    name: '403',
+    path: '/403',
+    component: 'self',
+    meta: {
+      title: 'error.forbidden',
+      singleLayout: 'blank',
+    },
+  },
+  {
+    name: '404',
+    path: '/404',
+    component: 'self',
+    meta: {
+      title: 'error.notfound',
+      singleLayout: 'error',
+    },
+  },
+  {
+    name: '500',
+    path: '/500',
+    component: 'self',
+    meta: {
+      title: 'error.other',
+      singleLayout: 'error',
+    },
+  },
+  {
+    name: 'not-found',
+    path: '/:pathMatch(.*)*',
+    component: 'blank',
+    meta: {
+      title: 'error.notfound',
+      singleLayout: 'blank',
+    },
+  },
+];

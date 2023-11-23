@@ -1,17 +1,14 @@
 import type { Router } from 'vue-router';
-import { setRouteEmitter } from '@/utils/route-listener';
-import setupUserLoginInfoGuard from './userLoginInfo';
-import setupPermissionGuard from './permission';
+import { useTitle } from '@vueuse/core';
+import i18n from '@/plugins/vue-i18n';
+import { createPermissionGuard } from './permission';
 
-function setupPageGuard(router: Router) {
-  router.beforeEach(async (to) => {
-    // emit route change
-    setRouteEmitter(to);
+export function createRouterGuard(router: Router) {
+  router.beforeEach(async (to, from, next) => {
+    await createPermissionGuard(to, from, next);
   });
-}
-
-export default function createRouteGuard(router: Router) {
-  setupPageGuard(router);
-  setupUserLoginInfoGuard(router);
-  setupPermissionGuard(router);
+  router.afterEach((to) => {
+    // set document title
+    useTitle(i18n.global.t(to.meta.title));
+  });
 }

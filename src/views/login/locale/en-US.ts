@@ -1,5 +1,7 @@
 export default {
-  'login.form.title': 'Login to Arco Design Pro',
+  'login.welcomeBack': 'welcome back',
+  'login.title': 'login',
+  'login.form.title': 'Login to Picc Mcde Sale',
   'login.form.userName.errMsg': 'Username cannot be empty',
   'login.form.password.errMsg': 'Password cannot be empty',
   'login.form.login.errMsg': 'Login error, refresh and try again',

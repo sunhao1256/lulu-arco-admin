@@ -17,7 +17,7 @@
                   :label="$t('searchTable.form.number')"
                 >
                   <a-input
-                    v-model="formModel.number"
+                    v-model="formModel.phone"
                     :placeholder="$t('searchTable.form.number.placeholder')"
                   />
                 </a-form-item>
@@ -36,20 +36,8 @@
                   :label="$t('searchTable.form.contentType')"
                 >
                   <a-select
-                    v-model="formModel.contentType"
+                    v-model="formModel.userStatus"
                     :options="contentTypeOptions"
-                    :placeholder="$t('searchTable.form.selectDefault')"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item
-                  field="filterType"
-                  :label="$t('searchTable.form.filterType')"
-                >
-                  <a-select
-                    v-model="formModel.filterType"
-                    :options="filterTypeOptions"
                     :placeholder="$t('searchTable.form.selectDefault')"
                   />
                 </a-form-item>
@@ -60,20 +48,8 @@
                   :label="$t('searchTable.form.createdTime')"
                 >
                   <a-range-picker
-                    v-model="formModel.createdTime"
+                    v-model="formModel.created"
                     style="width: 100%"
-                  />
-                </a-form-item>
-              </a-col>
-              <a-col :span="8">
-                <a-form-item
-                  field="status"
-                  :label="$t('searchTable.form.status')"
-                >
-                  <a-select
-                    v-model="formModel.status"
-                    :options="statusOptions"
-                    :placeholder="$t('searchTable.form.selectDefault')"
                   />
                 </a-form-item>
               </a-col>
@@ -196,44 +172,8 @@
         <template #index="{ rowIndex }">
           {{ rowIndex + 1 + (pagination.current - 1) * pagination.pageSize }}
         </template>
-        <template #contentType="{ record }">
-          <a-space>
-            <a-avatar
-              v-if="record.contentType === 'img'"
-              :size="16"
-              shape="square"
-            >
-              <img
-                alt="avatar"
-                src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/581b17753093199839f2e327e726b157.svg~tplv-49unhts6dw-image.image"
-              />
-            </a-avatar>
-            <a-avatar
-              v-else-if="record.contentType === 'horizontalVideo'"
-              :size="16"
-              shape="square"
-            >
-              <img
-                alt="avatar"
-                src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/77721e365eb2ab786c889682cbc721c1.svg~tplv-49unhts6dw-image.image"
-              />
-            </a-avatar>
-            <a-avatar v-else :size="16" shape="square">
-              <img
-                alt="avatar"
-                src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/ea8b09190046da0ea7e070d83c5d1731.svg~tplv-49unhts6dw-image.image"
-              />
-            </a-avatar>
-            {{ $t(`searchTable.form.contentType.${record.contentType}`) }}
-          </a-space>
-        </template>
         <template #filterType="{ record }">
           {{ $t(`searchTable.form.filterType.${record.filterType}`) }}
-        </template>
-        <template #status="{ record }">
-          <span v-if="record.status === 'offline'" class="circle"></span>
-          <span v-else class="circle pass"></span>
-          {{ $t(`searchTable.form.status.${record.status}`) }}
         </template>
         <template #operations>
           <a-button v-permission="['admin']" type="text" size="small">
@@ -246,45 +186,40 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref, reactive, watch, nextTick } from 'vue';
+  import { computed, ref, reactive, watch, nextTick, Ref } from 'vue';
   import { useI18n } from 'vue-i18n';
-  import useLoading from '@/hooks/loading';
-  import { queryPolicyList, PolicyRecord, PolicyParams } from '@/api/list';
-  import { Pagination } from '@/types/global';
+  import { useLoading } from '@/hooks';
   import type { SelectOptionData } from '@arco-design/web-vue/es/select/interface';
   import type { TableColumnData } from '@arco-design/web-vue/es/table/interface';
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
+  import { fetchUserList } from '@/service';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
 
-  const generateFormModel = () => {
+  const generateFormModel = (): ApiUserManagement.UserQueryParam => {
     return {
-      number: '',
       name: '',
-      contentType: '',
-      filterType: '',
-      createdTime: [],
-      status: '',
+      phone: '',
+      pageNo: 1,
+      pageSize: 20,
     };
   };
-  const { loading, setLoading } = useLoading(true);
+  const { loading, startLoading, endLoading } = useLoading(true);
   const { t } = useI18n();
-  const renderData = ref<PolicyRecord[]>([]);
+  const renderData = ref<UserManagement.User[]>([]);
   const formModel = ref(generateFormModel());
   const cloneColumns = ref<Column[]>([]);
   const showColumns = ref<Column[]>([]);
 
   const size = ref<SizeProps>('medium');
 
-  const basePagination: Pagination = {
-    current: 1,
-    pageSize: 20,
-  };
-  const pagination = reactive({
-    ...basePagination,
+  const pagination = reactive<arcoPagination>({
+    current: formModel.value.pageNo,
+    pageSize: formModel.value.pageSize,
   });
+
   const densityList = computed(() => [
     {
       name: t('searchTable.size.mini'),
@@ -311,7 +246,7 @@
     },
     {
       title: t('searchTable.columns.number'),
-      dataIndex: 'number',
+      dataIndex: 'phone',
     },
     {
       title: t('searchTable.columns.name'),
@@ -336,7 +271,7 @@
     },
     {
       title: t('searchTable.columns.status'),
-      dataIndex: 'status',
+      dataIndex: 'userStatus',
       slotName: 'status',
     },
     {
@@ -379,33 +314,40 @@
       value: 'offline',
     },
   ]);
-  const fetchData = async (
-    params: PolicyParams = { current: 1, pageSize: 20 }
-  ) => {
-    setLoading(true);
-    try {
-      const { data } = await queryPolicyList(params);
+  const fetchData = async (params: ApiUserManagement.UserQueryParam) => {
+    startLoading();
+    const { data } = await fetchUserList(params);
+    if (data) {
       renderData.value = data.list;
-      pagination.current = params.current;
+      pagination.current = params.pageNo;
       pagination.total = data.total;
-    } catch (err) {
-      // you can report use errorHandler or other
-    } finally {
-      setLoading(false);
     }
+    endLoading();
+  };
+
+  const combineFormModelAndPagination = (
+    formModel: ApiUserManagement.UserQueryParam,
+    pagination: arcoPagination
+  ) => {
+    formModel.pageNo = pagination.current!;
+    formModel.pageSize = pagination.pageSize!;
+    return {
+      ...formModel,
+    };
   };
 
   const search = () => {
-    fetchData({
-      ...basePagination,
-      ...formModel.value,
-    } as unknown as PolicyParams);
+    doSearch();
   };
   const onPageChange = (current: number) => {
-    fetchData({ ...basePagination, current });
+    doSearch();
+  };
+  const doSearch = () => {
+    fetchData(combineFormModelAndPagination(formModel.value, pagination));
   };
 
-  fetchData();
+  doSearch();
+
   const reset = () => {
     formModel.value = generateFormModel();
   };
@@ -439,7 +381,6 @@
   ): T => {
     const newArray = isDeep ? cloneDeep(array) : array;
     if (beforeIdx > -1 && newIdx > -1) {
-      // 先替换后面的，然后拿到替换的结果替换前面的
       newArray.splice(
         beforeIdx,
         1,

@@ -1,37 +1,33 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import NProgress from 'nprogress'; // progress bar
-import 'nprogress/nprogress.css';
+import type { App } from 'vue';
+import { transformAuthRouteToVueRoutes } from '@/utils/router/transform';
+import { transformRouteNameToRoutePath } from '@/utils';
+import {
+  createRouter,
+  createWebHashHistory,
+  createWebHistory,
+} from 'vue-router';
+import { constantRoutes } from './routes';
+import { createRouterGuard } from './guard';
 
-import { appRoutes } from './routes';
-import { REDIRECT_MAIN, NOT_FOUND_ROUTE } from './routes/base';
-import createRouteGuard from './guard';
+const { VITE_HASH_ROUTE = 'N', VITE_BASE_URL } = import.meta.env;
 
-NProgress.configure({ showSpinner: false }); // NProgress Configuration
-
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: '/',
-      redirect: 'login',
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('@/views/login/index.vue'),
-      meta: {
-        requiresAuth: false,
-      },
-    },
-    ...appRoutes,
-    REDIRECT_MAIN,
-    NOT_FOUND_ROUTE,
-  ],
-  scrollBehavior() {
-    return { top: 0 };
-  },
+export const router = createRouter({
+  history:
+    VITE_HASH_ROUTE === 'Y'
+      ? createWebHashHistory(VITE_BASE_URL)
+      : createWebHistory(VITE_BASE_URL),
+  routes: transformAuthRouteToVueRoutes(constantRoutes),
 });
 
-createRouteGuard(router);
+export const routeName = (key: AuthRoute.AllRouteKey) => key;
+export const routePath = (key: Exclude<AuthRoute.AllRouteKey, 'not-found'>) =>
+  transformRouteNameToRoutePath(key);
 
-export default router;
+export async function setupRouter(app: App) {
+  app.use(router);
+  createRouterGuard(router);
+  await router.isReady();
+}
+
+export * from './routes';
+export * from './modules';

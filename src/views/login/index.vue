@@ -1,81 +1,150 @@
 <template>
-  <div class="container">
-    <div class="logo">
-      <img
-        alt="logo"
-        src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image"
-      />
-      <div class="logo-text">Arco Design Pro</div>
-    </div>
-    <LoginBanner />
-    <div class="content">
-      <div class="content-inner">
-        <LoginForm />
-      </div>
-      <div class="footer">
-        <Footer />
-      </div>
-    </div>
+  <div class="login-form-wrapper">
+    <div class="login-form-title">{{ $t('login.title') + name }}</div>
+    <div class="login-form-sub-title">{{ $t('login.title') + name }}</div>
+    <div class="login-form-error-msg">{{ errorMessage }}</div>
+    <a-form
+      ref="loginForm"
+      :model="userInfo"
+      class="login-form"
+      layout="vertical"
+      @submit="handleSubmit"
+    >
+      <a-form-item
+        field="username"
+        :rules="[{ required: true, message: $t('login.form.userName.errMsg') }]"
+        :validate-trigger="['change', 'blur']"
+        hide-label
+      >
+        <a-input
+          v-model="userInfo.username"
+          :placeholder="$t('login.form.userName.placeholder')"
+        >
+          <template #prefix>
+            <icon-user />
+          </template>
+        </a-input>
+      </a-form-item>
+      <a-form-item
+        field="password"
+        :rules="[{ required: true, message: $t('login.form.password.errMsg') }]"
+        :validate-trigger="['change', 'blur']"
+        hide-label
+      >
+        <a-input-password
+          v-model="userInfo.password"
+          :placeholder="$t('login.form.password.placeholder')"
+          allow-clear
+        >
+          <template #prefix>
+            <icon-lock />
+          </template>
+        </a-input-password>
+      </a-form-item>
+      <a-space :size="16" direction="vertical">
+        <div class="login-form-password-actions">
+          <a-checkbox
+            checked="rememberPassword"
+            :model-value="loginConfig.rememberPassword"
+            @change="setRememberPassword as any"
+          >
+            {{ $t('login.form.rememberPassword') }}
+          </a-checkbox>
+          <a-link>{{ $t('login.form.forgetPassword') }}</a-link>
+        </div>
+        <a-button type="primary" html-type="submit" long :loading="loading">
+          {{ $t('login.form.login') }}
+        </a-button>
+        <a-button type="text" long class="login-form-register-btn">
+          {{ $t('login.form.register') }}
+        </a-button>
+      </a-space>
+    </a-form>
   </div>
 </template>
 
 <script lang="ts" setup>
-  import Footer from '@/components/footer/index.vue';
-  import LoginBanner from './components/banner.vue';
-  import LoginForm from './components/login-form.vue';
+  import { ref, reactive } from 'vue';
+  import { useRouter } from 'vue-router';
+  import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
+  import { useI18n } from 'vue-i18n';
+  import { useStorage } from '@vueuse/core';
+  import { useAuthStore } from '@/store';
+  import { useLoading } from '@/hooks/';
+  import { useAppInfo } from '@/composables';
+
+  const { name } = useAppInfo();
+  const router = useRouter();
+  const { t } = useI18n();
+  const errorMessage = ref('');
+  const { loading, startLoading, endLoading } = useLoading();
+  const authStore = useAuthStore();
+  const loginConfig = useStorage('login-config', {
+    rememberPassword: true,
+    username: 'admin', // 演示默认值
+    password: 'admin123', // demo default value
+  });
+  const userInfo = reactive({
+    username: loginConfig.value.username,
+    password: loginConfig.value.password,
+  });
+  const handleSubmit = async ({
+    errors,
+    values,
+  }: {
+    errors: Record<string, ValidatedError> | undefined;
+    values: Record<string, any>;
+  }) => {
+    if (loading.value) return;
+    if (!errors) {
+      startLoading();
+      try {
+        const formData = values as typeof userInfo;
+        await authStore.login(formData.username, formData.password);
+      } catch (err) {
+        errorMessage.value = (err as Error).message;
+      } finally {
+        endLoading();
+      }
+    }
+  };
+  const setRememberPassword = (value: boolean) => {
+    loginConfig.value.rememberPassword = value;
+  };
 </script>
 
 <style lang="less" scoped>
-  .container {
-    display: flex;
-    height: 100vh;
-
-    .banner {
-      width: 550px;
-      background: linear-gradient(163.85deg, #1d2129 0%, #00308f 100%);
+  .login-form {
+    &-wrapper {
+      width: 320px;
     }
 
-    .content {
-      position: relative;
+    &-title {
+      color: var(--color-text-1);
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 32px;
+    }
+
+    &-sub-title {
+      color: var(--color-text-3);
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    &-error-msg {
+      height: 32px;
+      color: rgb(var(--red-6));
+      line-height: 32px;
+    }
+
+    &-password-actions {
       display: flex;
-      flex: 1;
-      align-items: center;
-      justify-content: center;
-      padding-bottom: 40px;
+      justify-content: space-between;
     }
 
-    .footer {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      width: 100%;
-    }
-  }
-
-  .logo {
-    position: fixed;
-    top: 24px;
-    left: 22px;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-
-    &-text {
-      margin-right: 4px;
-      margin-left: 4px;
-      color: var(--color-fill-1);
-      font-size: 20px;
-    }
-  }
-</style>
-
-<style lang="less" scoped>
-  // responsive
-  @media (max-width: @screen-lg) {
-    .container {
-      .banner {
-        width: 25%;
-      }
+    &-register-btn {
+      color: var(--color-text-3) !important;
     }
   }
 </style>

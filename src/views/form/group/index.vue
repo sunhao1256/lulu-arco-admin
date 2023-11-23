@@ -252,18 +252,18 @@
 <script lang="ts" setup>
   import { ref } from 'vue';
   import { FormInstance } from '@arco-design/web-vue/es/form';
-  import useLoading from '@/hooks/loading';
+  import { useLoading } from '@/hooks';
 
   const formData = ref({});
   const formRef = ref<FormInstance>();
-  const { loading, setLoading } = useLoading();
+  const { loading, startLoading, endLoading } = useLoading();
   const onSubmitClick = async () => {
     const res = await formRef.value?.validate();
     if (!res) {
-      setLoading(true);
+      startLoading();
     }
     setTimeout(() => {
-      setLoading(false);
+      endLoading();
     }, 1000);
   };
 </script>

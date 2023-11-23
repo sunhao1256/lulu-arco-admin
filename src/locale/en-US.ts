@@ -1,23 +1,10 @@
-import localeMessageBox from '@/components/message-box/locale/en-US';
 import localeLogin from '@/views/login/locale/en-US';
 
 import localeWorkplace from '@/views/dashboard/workplace/locale/en-US';
-/** simple */
-import localeMonitor from '@/views/dashboard/monitor/locale/en-US';
 
 import localeSearchTable from '@/views/list/search-table/locale/en-US';
-import localeCardList from '@/views/list/card/locale/en-US';
 
-import localeStepForm from '@/views/form/step/locale/en-US';
 import localeGroupForm from '@/views/form/group/locale/en-US';
-
-import localeBasicProfile from '@/views/profile/basic/locale/en-US';
-
-import localeDataAnalysis from '@/views/visualization/data-analysis/locale/en-US';
-import localeMultiDAnalysis from '@/views/visualization/multi-dimension-data-analysis/locale/en-US';
-
-import localeSuccess from '@/views/result/success/locale/en-US';
-import localeError from '@/views/result/error/locale/en-US';
 
 import locale403 from '@/views/exception/403/locale/en-US';
 import locale404 from '@/views/exception/404/locale/en-US';
@@ -44,21 +31,63 @@ export default {
   'menu.faq': 'FAQ',
   'navbar.docs': 'Docs',
   'navbar.action.locale': 'Switch to English',
+  'menu': {
+    'apps': 'apps',
+    'search': 'Search (press "ctrl + /" to focus)',
+    'dashboard': 'Dashboard',
+    'dashboard_analytics': 'Analytics',
+    'logout': 'Logout',
+    'profile': 'Profile',
+    'blank': 'Blank Page',
+    'pages': 'Pages',
+    'others': 'Others',
+    'email': 'Email',
+    'chat': 'Chat',
+    'chat-channel': 'Chat Channel',
+    'todo': 'To Do',
+    'board': 'Task Board',
+    'users': 'Users',
+    'usersList': 'List',
+    'usersEdit': 'Edit',
+    'ecommerce': 'Ecommerce',
+    'ecommerceList': 'Products',
+    'ecommerceProductDetails': 'Product Details',
+    'ecommerceOrders': 'Orders',
+    'ecommerceCart': 'Cart',
+    'auth': 'Auth Pages',
+    'authLogin': 'Signin / Login',
+    'authRegister': 'Signup / Register',
+    'authVerify': 'Verify Email',
+    'authForgot': 'Forgot Password',
+    'authReset': 'Reset Password',
+    'errorPages': 'Error Pages',
+    'errorNotFound': 'Not Found / 404',
+    'errorUnexpected': 'Unexpected / 500',
+    'utilityPages': 'Utility Pages',
+    'utilityMaintenance': 'Maintenance',
+    'utilitySoon': 'Coming Soon',
+    'utilityHelp': 'FAQs / Help',
+    'levels': 'Menu Levels',
+    'levels2-1': 'levels2-1',
+    'levels2-2': 'levels2-2',
+    'levels3-1': 'levels3-1',
+    'levels3-2': 'levels3-2',
+    'disabled': 'Menu Disabled',
+    'docs': 'Documentation',
+    'feedback': 'Feedback',
+    'support': 'Support',
+    'landingPage': 'Landing Page',
+    'pricingPage': 'Pricing Page',
+    'flowable': 'Flowable',
+    'flowable-design': 'Flowable Design',
+    'form-list': 'Forms',
+    'form-design': 'Form Design',
+  },
   ...localeSettings,
-  ...localeMessageBox,
   ...localeLogin,
   ...localeWorkplace,
-  /** simple */
-  ...localeMonitor,
   ...localeSearchTable,
-  ...localeCardList,
-  ...localeStepForm,
   ...localeGroupForm,
-  ...localeBasicProfile,
-  ...localeDataAnalysis,
-  ...localeMultiDAnalysis,
-  ...localeSuccess,
-  ...localeError,
   ...locale403,
   ...locale404,
   ...locale500,
