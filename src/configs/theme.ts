@@ -6,6 +6,8 @@ const themeConfig: ThemeConfig.Config = {
   followOs: true,
 
   menuWidth: 220,
+
+  globalSetting: false,
 };
 
 export default themeConfig;

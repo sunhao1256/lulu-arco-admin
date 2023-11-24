@@ -8,16 +8,19 @@
         collapsible
         breakpoint="xl"
         class="layout-sider"
+        :width="themeConfig.menuWidth"
         @collapse="setCollapse"
       >
         <Menu />
       </a-layout-sider>
       <a-layout class="layout-content" :style="paddingStyle">
         <a-layout-content>
-          <router-view />
+          <BlankLayout></BlankLayout>
         </a-layout-content>
         <Footer />
       </a-layout>
+
+      <GlobalSetting />
     </a-layout>
   </a-layout>
 </template>
@@ -28,6 +31,8 @@
   import NavBar from '@/components/navbar/index.vue';
   import Menu from '@/components/menu/index.vue';
   import Footer from '@/components/footer/index.vue';
+  import GlobalSetting from '@/components/globalsetting/index.vue';
+  import BlankLayout from './BlankLayout/index.vue';
   // import TabBar from '@/components/tab-bar/menu-tree.tsx';
 
   const themeConfig = useThemeStore();
@@ -51,7 +56,6 @@
 <style scoped lang="less">
   @nav-size-height: 60px;
   @sider-size-width: 220px;
-  @layout-max-width: 1100px;
 
   .layout-navbar {
     height: @nav-size-height;

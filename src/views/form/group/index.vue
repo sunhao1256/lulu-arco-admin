@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <Breadcrumb :items="['menu.form', 'menu.form.group']" />
+  <div class="container mx-auto px-3">
+    <Breadcrumb root="manager-demo_edit" />
     <a-form ref="formRef" layout="vertical" :model="formData">
       <a-space direction="vertical" :size="16">
         <a-card class="general-card">
@@ -253,6 +253,7 @@
   import { ref } from 'vue';
   import { FormInstance } from '@arco-design/web-vue/es/form';
   import { useLoading } from '@/hooks';
+  import Breadcrumb from '@/components/breadcrumb/index.vue';
 
   const formData = ref({});
   const formRef = ref<FormInstance>();
@@ -275,11 +276,6 @@
 </script>
 
 <style scoped lang="less">
-  .container {
-    padding: 0 20px 40px 20px;
-    overflow: hidden;
-  }
-
   .actions {
     position: fixed;
     left: 0;

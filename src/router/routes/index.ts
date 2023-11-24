@@ -34,7 +34,7 @@ export const constantRoutes: AuthRoute.Route[] = [
     component: 'self',
     meta: {
       title: 'error.forbidden',
-      singleLayout: 'blank',
+      singleLayout: 'error',
     },
   },
   {

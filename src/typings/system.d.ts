@@ -252,6 +252,9 @@ declare namespace App {
     children?: GlobalMenuOption[];
   };
 
+  /** 面包屑 */
+  type GlobalBreadcrumb = BreadcrumbItem;
+
   /** 多页签Tab的路由 */
   interface GlobalTabRoute
     extends Pick<

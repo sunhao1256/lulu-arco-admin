@@ -1,4 +1,6 @@
 import type { App } from 'vue';
+import NProgress from 'nprogress'; // progress bar
+import 'nprogress/nprogress.css';
 import { transformAuthRouteToVueRoutes } from '@/utils/router/transform';
 import { transformRouteNameToRoutePath } from '@/utils';
 import {
@@ -10,6 +12,8 @@ import { constantRoutes } from './routes';
 import { createRouterGuard } from './guard';
 
 const { VITE_HASH_ROUTE = 'N', VITE_BASE_URL } = import.meta.env;
+
+NProgress.configure({ showSpinner: false });
 
 export const router = createRouter({
   history:

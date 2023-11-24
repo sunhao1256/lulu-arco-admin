@@ -13,7 +13,7 @@ export async function createPermissionGuard(
   if (!permission) return;
 
   if (to.meta.href) {
-    window.open(to.meta.href);
+    window.open(to.meta.href as string);
     next({ path: from.fullPath, replace: true, query: from.query });
     return;
   }

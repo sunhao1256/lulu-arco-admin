@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <Breadcrumb :items="['menu.list', 'menu.list.searchTable']" />
+  <div class="container mx-auto px-3">
+    <Breadcrumb root="manager-demo_list" />
     <a-card class="general-card" :title="$t('menu.list.searchTable')">
       <a-row>
         <a-col :flex="1">
@@ -194,6 +194,7 @@
   import cloneDeep from 'lodash/cloneDeep';
   import Sortable from 'sortablejs';
   import { fetchUserList } from '@/service';
+  import Breadcrumb from '@/components/breadcrumb/index.vue';
 
   type SizeProps = 'mini' | 'small' | 'medium' | 'large';
   type Column = TableColumnData & { checked?: true };
@@ -425,9 +426,6 @@
 </script>
 
 <style scoped lang="less">
-  .container {
-    padding: 0 20px 20px 20px;
-  }
   :deep(.arco-table-th) {
     &:last-child {
       .arco-table-th-item-title {

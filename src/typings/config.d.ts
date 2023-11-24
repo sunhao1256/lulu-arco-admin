@@ -29,6 +29,8 @@ declare namespace ThemeConfig {
     darkMode: boolean;
 
     menuWidth: number;
+
+    globalSetting: boolean;
   }
 }
 

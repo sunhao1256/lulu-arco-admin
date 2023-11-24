@@ -76,7 +76,12 @@
       </li>
       <li>
         <a-tooltip :content="$t('settings.title')">
-          <a-button class="nav-btn" type="outline" :shape="'circle'">
+          <a-button
+            class="nav-btn"
+            type="outline"
+            :shape="'circle'"
+            @click="globalSettingVisible"
+          >
             <template #icon>
               <icon-settings />
             </template>
@@ -101,7 +106,7 @@
               </a-space>
             </a-doption>
             <a-doption>
-              <a-space @click="$router.push({ name: 'Info' })">
+              <a-space>
                 <icon-user />
                 <span>
                   {{ $t('messageBox.userCenter') }}
@@ -109,7 +114,7 @@
               </a-space>
             </a-doption>
             <a-doption>
-              <a-space @click="$router.push({ name: 'Setting' })">
+              <a-space>
                 <icon-settings />
                 <span>
                   {{ $t('messageBox.userSettings') }}
@@ -161,6 +166,10 @@
 
   const setLocale = (use: string) => {
     locale.value = use;
+  };
+
+  const globalSettingVisible = () => {
+    theme.globalSetting = !theme.globalSetting;
   };
 </script>
 

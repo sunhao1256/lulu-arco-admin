@@ -150,13 +150,4 @@
   }
 </style>
 
-<style lang="less" scoped>
-  // responsive
-  @media (max-width: @screen-lg) {
-    .container {
-      .banner {
-        width: 25%;
-      }
-    }
-  }
-</style>
+<style lang="less" scoped></style>

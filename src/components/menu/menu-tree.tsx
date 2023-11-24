@@ -27,6 +27,7 @@ export default defineComponent({
         {this.menus?.map((menu: App.GlobalMenuOption) => {
           return menu.children ? (
             <SubMenu
+              key={menu.key}
               title={this.$t(menu.label)}
               v-slots={{
                 icon: () => this.renderIcon(menu),
@@ -36,6 +37,7 @@ export default defineComponent({
             </SubMenu>
           ) : (
             <MenuItem
+              key={menu.key}
               v-slots={{
                 icon: () => this.renderIcon(menu),
               }}

@@ -87,10 +87,8 @@ function transformBreadcrumbMenuToBreadcrumb(
   rootPath: string
 ) {
   const breadcrumb: App.GlobalBreadcrumb = {
-    key: menu.routeName,
-    title: menu.label,
-    to: menu.routePath,
-    disabled: menu.routePath === rootPath,
+    label: menu.label,
+    path: menu.routePath,
   };
   return breadcrumb;
 }
